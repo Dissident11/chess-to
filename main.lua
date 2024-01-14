@@ -7,7 +7,9 @@ local tile_size = 64
 local board_white_tiles = {}
 local board_black_tiles = {}
 local board_tiles = {}
-local available_tiles = {}
+local piece_available_tiles
+local piece_selected = false
+local current_piece
 local first_tile_x = (window_height - 8 * tile_size) / 2 + board_x --top left corner tile's x
 local first_tile_y = (window_height - 8 * tile_size) / 2 + board_y --top left corner tile's y
 
@@ -58,7 +60,7 @@ function Pawn:check_moving()
 
     local no_white, no_black = true, true
 
-    if self.white_team then 
+    if self.white_team then
         for _, v in pairs(board_white_tiles) do
             if v[1] == self.board_x and v[2] == self.board_y - 1 then
                 no_white = false
@@ -89,17 +91,20 @@ function Pawn:check_moving()
     return self.can_move
 end
 
-function Pawn:available_tiles()
+function Pawn:available_board_tiles()
     if self.can_move then
-        local available_tiles = {self.board_x, self.board_y - 1}
-        return available_tiles
+        self.available_tiles = {{self.board_x, self.board_y - 1}}
+        return self.available_tiles
     end
 end
 
-function Pawn:move()
+function Pawn:move(x, y)
 
-    if self.can_move then
-
+    if self.can_move and x == self.available_tiles[1] and y == self.available_tiles[2] then
+        self.board_x = x
+        self.board_y = y
+        self.x  =first_tile_x + (x - 1) * tile_size
+        self.y = first_tile_y + (y - 1) * tile_size
     end
 end
 
@@ -228,17 +233,29 @@ function pesto.update(dt)
         if white_turn then
 
             text = ""
+            piece_available_tiles = {}
+            current_piece = nil
 
-            for _, v in pairs(white_pieces) do --check if there is a piece on the selected tile
+            for k, v in pairs(white_pieces) do --check if there is a piece on the selected tile
                 if v.board_x == selected_tile_x and v.board_y == selected_tile_y then
-                    text = tostring(v.letter).."".. tostring(v.board_x).."".. tostring(v.board_y)
+                    text = tostring(v.letter)..string.char(97 + v.board_x - 1)..tostring(9 - v.board_y)
+                    piece_selected = true
+                    current_piece = white_pieces[k]
+                    if v:check_moving() then
+                        piece_available_tiles = v:available_board_tiles()
+                    end
+
+                    if piece_available_tiles ~= nil then
+                        for _, v in pairs(piece_available_tiles) do
+                            v[1] = first_tile_x + (v[1] - 1) * tile_size
+                            v[2] = first_tile_y + (v[2] - 1) * tile_size
+                        end
+                    end
                 end
             end
-
         else
 
         end
-
     else
 
     end
@@ -263,6 +280,14 @@ function pesto.draw()
     pesto.graphics.rectangle(first_tile_x + (mouse_tile_x - 1) * tile_size,
             first_tile_y + (mouse_tile_y - 1) * tile_size, tile_size, tile_size)
 
+    --if a piece is selected, draw the tiles it can move on if there are any
+    if piece_available_tiles ~= nil then
+        pesto.graphics.setColor(255, 0, 0)
+        for _, v in pairs(piece_available_tiles) do
+            pesto.graphics.rectangle(v[1], v[2], tile_size, tile_size)
+        end
+    end
+
     --draw white pieces
     pesto.graphics.setColor(255, 255, 255)
     for _, v in pairs(white_pieces) do
@@ -277,26 +302,22 @@ function pesto.draw()
     --draw mouse coords when on board
     if mouse_tile_x <= 8 and mouse_tile_x >= 1 and mouse_tile_y <= 8 and mouse_tile_y >= 1 then
         pesto.graphics.text((mouse_tile_x.. " ".. mouse_tile_y), 0, 0)
-        pesto.graphics.text((string.char(65 + mouse_tile_x - 1).. " ".. (9 - mouse_tile_y)), 30, 0)
+        pesto.graphics.text((string.char(97 + mouse_tile_x - 1).. " ".. (9 - mouse_tile_y)), 30, 0)
     end
 
     --draw selected tile's coords
     pesto.graphics.text((selected_tile_x.. " ".. selected_tile_y), 0, 15)
-    pesto.graphics.text((string.char(65 + selected_tile_x - 1).. " ".. (9 - selected_tile_y)), 30, 15)
+    pesto.graphics.text((string.char(97 + selected_tile_x - 1).. " ".. (9 - selected_tile_y)), 30, 15)
     
     --draw whose turn it is
     pesto.graphics.text(turn_text, 0, 30)
 
-    if text then
-        pesto.graphics.text(12345, 0, 70)
-    else
-        pesto.graphics.text(67890, 0, 70)
+    --selected tile coords and piece type
+    pesto.graphics.text(text, 0, 45)
+
+    if current_piece ~= nil then
+        if current_piece:check_moving() then
+            pesto.graphics.text("can move", 0, 100)
+        end
     end
-
-    if white_pawn1:check_moving() then
-        pesto.graphics.text("can move", 0, 100)
-    end
-
-    pesto.graphics.text(text, 800, 0)
-
 end
