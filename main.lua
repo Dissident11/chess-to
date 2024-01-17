@@ -19,6 +19,7 @@ local white_pieces = {}
 local black_pieces = {}
 local selected_tile_x = 0
 local selected_tile_y = 0
+local new_mouse_tile_x, new_mouse_tile_y
 local moves = {}
 local game_over = false
 
@@ -40,21 +41,33 @@ local white_king_image = pesto.graphics.loadTexture("assets/sprites/white/King.p
 local Object = require "assets/classic"
 local Piece = Object:extend()
 
-function Piece:new(x, y, icon, white_team, letter)
+function Piece:new(x, y, white_team)
     self.board_x = x
     self.board_y = y
     self.x = first_tile_x + (x - 1) * tile_size
     self.y = first_tile_y + (y - 1) * tile_size
-    self.icon = icon
     self.white_team = white_team
-    self.letter = letter
-end
-
-function Piece:draw()
-    self.icon:draw(self.x, self.y, 0, 2, 2)
 end
 
 local Pawn = Piece:extend()
+local Rook = Piece:extend()
+local Knight = Piece:extend()
+local Bishop = Piece:extend()
+local Queen = Piece:extend()
+local King = Piece:extend()
+
+function Pawn:new(x, y, white_team)
+    Pawn.super.new(self, x, y, white_team)
+    self.letter = ""
+    if self.white_team then
+        self.icon = white_pawn_image
+    else
+        self.icon = black_pawn_image
+    end
+end
+function Pawn:draw()
+    self.icon:draw(self.x, self.y, 0, 2, 2)
+end
 
 function Pawn:check_moving()
 
@@ -99,39 +112,105 @@ function Pawn:available_board_tiles()
 end
 
 function Pawn:move(x, y)
-
     if self.can_move and x == self.available_tiles[1] and y == self.available_tiles[2] then
         self.board_x = x
         self.board_y = y
-        self.x  =first_tile_x + (x - 1) * tile_size
-        self.y = first_tile_y + (y - 1) * tile_size
+        self.y = self.y - tile_size
     end
 end
 
-local Rook = Piece:extend()
-local Knight = Piece:extend()
-local Bishop = Piece:extend()
-local Queen = Piece:extend()
-local King = Piece:extend()
+function Pawn:draw()
+    self.icon:draw(self.x, self.y, 0, 2, 2)
+end
+
+--rook class
+function Rook:new(x, y, white_team)
+    Rook.super.new(self, x, y, white_team)
+    self.letter = "R"
+    if self.white_team then
+        self.icon = white_rook_image
+    else
+        self.icon = black_rook_image
+    end
+end
+function Rook:draw()
+    self.icon:draw(self.x, self.y, 0, 2, 2)
+end
+
+--knight class
+function Knight:new(x, y, white_team)
+    Knight.super.new(self, x, y, white_team)
+    self.letter = "N"
+    if self.white_team then
+        self.icon = white_knight_image
+    else
+        self.icon = black_knight_image
+    end
+end
+function Knight:draw()
+    self.icon:draw(self.x, self.y, 0, 2, 2)
+end
+
+--bishop class
+function Bishop:new(x, y, white_team)
+    Bishop.super.new(self, x, y, white_team)
+    self.letter = "B"
+    if self.white_team then
+        self.icon = white_bishop_image
+    else
+        self.icon = black_bishop_image
+    end
+end
+function Bishop:draw()
+    self.icon:draw(self.x, self.y, 0, 2, 2)
+end
+
+--queen class
+function Queen:new(x, y, white_team)
+    Queen.super.new(self, x, y, white_team)
+    self.letter = "Q"
+    if self.white_team then
+        self.icon = white_queen_image
+    else
+        self.icon = black_queen_image
+    end
+end
+function Queen:draw()
+    self.icon:draw(self.x, self.y, 0, 2, 2)
+end
+
+--king class
+function King:new(x, y, white_team)
+    King.super.new(self, x, y, white_team)
+    self.letter = "K"
+    if self.white_team then
+        self.icon = white_king_image
+    else
+        self.icon = black_king_image
+    end
+end
+function King:draw()
+    self.icon:draw(self.x, self.y, 0, 2, 2)
+end
 
 --starting setup
 --white pieces
-local white_pawn1 = Pawn(1, 7, white_pawn_image, true, "")
-local white_pawn2 = Pawn(2, 7, white_pawn_image, true, "")
-local white_pawn3 = Pawn(3, 7, white_pawn_image, true, "")
-local white_pawn4 = Pawn(4, 7, white_pawn_image, true, "")
-local white_pawn5 = Pawn(5, 7, white_pawn_image, true, "")
-local white_pawn6 = Pawn(6, 7, white_pawn_image, true, "")
-local white_pawn7 = Pawn(7, 7, white_pawn_image, true, "")
-local white_pawn8 = Pawn(8, 7, white_pawn_image, true, "")
-local white_rook1 = Rook(1, 8, white_rook_image, true, "R")
-local white_rook2 = Rook(8, 8, white_rook_image, true, "R")
-local white_knight1 = Knight(2, 8, white_knight_image, true, "N")
-local white_knight2 = Knight(7, 8, white_knight_image, true, "N")
-local white_bishop1 = Bishop(3, 8, white_bishop_image, true, "B")
-local white_bishop2 = Bishop(6, 8, white_bishop_image, true, "B")
-local white_queen = Queen(4, 8, white_queen_image, true, "Q")
-local white_king = King(5, 8, white_king_image, true, "K")
+local white_pawn1 = Pawn(1, 7, true)
+local white_pawn2 = Pawn(2, 7, true)
+local white_pawn3 = Pawn(3, 7, true)
+local white_pawn4 = Pawn(4, 7, true)
+local white_pawn5 = Pawn(5, 7, true)
+local white_pawn6 = Pawn(6, 7, true)
+local white_pawn7 = Pawn(7, 7, true)
+local white_pawn8 = Pawn(8, 7, true)
+local white_rook1 = Rook(1, 8, true)
+local white_rook2 = Rook(8, 8, true)
+local white_knight1 = Knight(2, 8, true)
+local white_knight2 = Knight(7, 8, true)
+local white_bishop1 = Bishop(3, 8, true)
+local white_bishop2 = Bishop(6, 8, true)
+local white_queen = Queen(4, 8, true)
+local white_king = King(5, 8, true)
 
 table.insert(white_pieces, white_pawn1)
 table.insert(white_pieces, white_pawn2)
@@ -151,22 +230,22 @@ table.insert(white_pieces, white_queen)
 table.insert(white_pieces, white_king)
 
 --black pieces
-local black_pawn1 = Pawn(1, 2, black_pawn_image, false, "")
-local black_pawn2 = Pawn(2, 2, black_pawn_image, false, "")
-local black_pawn3 = Pawn(3, 2, black_pawn_image, false, "")
-local black_pawn4 = Pawn(4, 2, black_pawn_image, false, "")
-local black_pawn5 = Pawn(5, 2, black_pawn_image, false, "")
-local black_pawn6 = Pawn(6, 2, black_pawn_image, false, "")
-local black_pawn7 = Pawn(7, 2, black_pawn_image, false, "")
-local black_pawn8 = Pawn(8, 2, black_pawn_image, false, "")
-local black_rook1 = Rook(1, 1, black_rook_image, false, "R")
-local black_rook2 = Rook(8, 1, black_rook_image, false, "R")
-local black_knight1 = Knight(2, 1, black_knight_image, false, "N")
-local black_knight2 = Knight(7, 1, black_knight_image, false, "N")
-local black_bishop1 = Bishop(3, 1, black_bishop_image, false, "B")
-local black_bishop2 = Bishop(6, 1, black_bishop_image, false, "B")
-local black_queen = Queen(4, 1, black_queen_image, false, "Q")
-local black_king = King(5, 1, black_king_image, false, "K")
+local black_pawn1 = Pawn(1, 2, false)
+local black_pawn2 = Pawn(2, 2, false)
+local black_pawn3 = Pawn(3, 2, false)
+local black_pawn4 = Pawn(4, 2, false)
+local black_pawn5 = Pawn(5, 2, false)
+local black_pawn6 = Pawn(6, 2, false)
+local black_pawn7 = Pawn(7, 2, false)
+local black_pawn8 = Pawn(8, 2, false)
+local black_rook1 = Rook(1, 1, false)
+local black_rook2 = Rook(8, 1, false)
+local black_knight1 = Knight(2, 1, false)
+local black_knight2 = Knight(7, 1, false)
+local black_bishop1 = Bishop(3, 1, false)
+local black_bishop2 = Bishop(6, 1, false)
+local black_queen = Queen(4, 1, false)
+local black_king = King(5, 1, false)
 
 table.insert(black_pieces, black_pawn1)
 table.insert(black_pieces, black_pawn2)
@@ -215,10 +294,16 @@ function pesto.update(dt)
     mouse_tile_x = math.ceil((mouse_x - first_tile_x)/tile_size)
     mouse_tile_y = math.ceil((mouse_y - first_tile_y)/tile_size)
 
-    --select tile whit mouse on board and left click
+    --select tile with mouse on board and left click
     if mouse_tile_x <= 8 and mouse_tile_x >= 1 and mouse_tile_y <= 8 and mouse_tile_y >= 1 and pesto.mouse.isPressed(0) then
         selected_tile_x = mouse_tile_x
         selected_tile_y = mouse_tile_y
+    end
+
+    --select tile with mouse on board and right click, used just to move pieces
+    if mouse_tile_x <= 8 and mouse_tile_x >= 1 and mouse_tile_y <= 8 and mouse_tile_y >= 1 and pesto.mouse.isPressed(1) then
+        new_mouse_tile_x = mouse_tile_x
+        new_mouse_tile_y = mouse_tile_y
     end
 
     --set turn text
@@ -230,28 +315,39 @@ function pesto.update(dt)
 
     if not game_over then
 
+        text = ""
+        piece_available_tiles = {}
+        current_piece = nil
+        piece_selected = false
+
         if white_turn then
 
-            text = ""
-            piece_available_tiles = {}
-            current_piece = nil
+            
 
             for k, v in pairs(white_pieces) do --check if there is a piece on the selected tile
                 if v.board_x == selected_tile_x and v.board_y == selected_tile_y then
-                    text = tostring(v.letter)..string.char(97 + v.board_x - 1)..tostring(9 - v.board_y)
                     piece_selected = true
+                    text = tostring(v.letter)..string.char(97 + v.board_x - 1)..tostring(9 - v.board_y)
                     current_piece = white_pieces[k]
-                    if v:check_moving() then
-                        piece_available_tiles = v:available_board_tiles()
-                    end
+                end
+                
+                if piece_selected then
 
-                    if piece_available_tiles ~= nil then
-                        for _, v in pairs(piece_available_tiles) do
+                    if current_piece:check_moving() then
+                        piece_available_tiles = current_piece:available_board_tiles()
+
+                        for _, v in pairs(piece_available_tiles) do --convert board coords to screen coords
                             v[1] = first_tile_x + (v[1] - 1) * tile_size
                             v[2] = first_tile_y + (v[2] - 1) * tile_size
                         end
                     end
+
+                    if pesto.mouse.isPressed(1) then
+                        current_piece:move(new_mouse_tile_x, new_mouse_tile_y)
+                    end
+
                 end
+
             end
         else
 
@@ -315,9 +411,19 @@ function pesto.draw()
     --selected tile coords and piece type
     pesto.graphics.text(text, 0, 45)
 
+    if new_mouse_tile_x then
+        pesto.graphics.text((new_mouse_tile_x.." "..new_mouse_tile_y), 0, 60)
+    end
+
     if current_piece ~= nil then
         if current_piece:check_moving() then
             pesto.graphics.text("can move", 0, 100)
+        end
+    end
+
+    if piece_selected then
+        for _, v in pairs(piece_available_tiles) do
+            pesto.graphics.text((v[1].." "..v[2]), 0, 75)
         end
     end
 end
